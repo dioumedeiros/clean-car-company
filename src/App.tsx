@@ -1,6 +1,7 @@
 import React from 'react';
-import { View } from 'react-native';
 
-const App: React.FC = () => <View />;
+import Camera from './components/Camera';
 
-export default App;
+export default function App() {
+  return <Camera />;
+}
