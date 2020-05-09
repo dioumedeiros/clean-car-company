@@ -62,6 +62,7 @@ const Camera: React.FC = () => {
 
   function newImage() {
     setImage('');
+    if (imagesCount > 0) setImagesCount(imagesCount - 1);
     Alert.alert('Imagem descartada com sucesso!');
   }
 
