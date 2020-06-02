@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { Dimensions } from 'react-native';
+
 import { RNCamera } from 'react-native-camera';
 import CameraRoll, {
   PhotoIdentifier,
@@ -17,13 +19,20 @@ import {
 
 import styles from './styles';
 
-const Camera: React.FC = () => {
+interface Props {
+  show: boolean;
+  onClose: () => void;
+  result: (value: any) => void;
+}
+
+const Camera: React.FC<Props> = ({ show, onClose, result }) => {
   const [camera, setCamera] = useState<RNCamera | null>();
   const [typeCamera, setTypeCamera] = useState(RNCamera.Constants.Type.back);
   const [image, setImage] = useState('');
-  const [imagesCount, setImagesCount] = useState(0);
-  const [imagesList, setImagesList] = useState<PhotoIdentifier[]>();
-  const [modalVisible, setModalVisible] = useState(false);
+  const [imageCount, setImageCount] = useState(0);
+  const [imageList, setImageList] = useState<PhotoIdentifier[]>();
+  const [showGallery, setShowGallery] = useState(false);
+  const scrollWidth = Dimensions.get('window').width;
 
   async function takePicture() {
     if (camera) {
@@ -38,8 +47,6 @@ const Camera: React.FC = () => {
 
         setImage(data.uri);
       } catch (err) {
-        console.log('takePicture', err);
-
         Alert.alert(JSON.stringify(err));
       }
     }
@@ -50,49 +57,68 @@ const Camera: React.FC = () => {
       await CameraRoll.saveToCameraRoll(image);
 
       setImage('');
-      setImagesCount(imagesCount + 1);
-
-      Alert.alert('Imagem salva com sucesso!');
+      setImageCount(imageCount + 1);
     } catch (err) {
-      console.log('saveImage', err);
-
       Alert.alert(JSON.stringify(err));
     }
   }
 
   function newImage() {
     setImage('');
-    if (imagesCount > 0) setImagesCount(imagesCount - 1);
-    Alert.alert('Imagem descartada com sucesso!');
+    if (imageCount > 0) {
+      setImageCount(imageCount - 1);
+    }
   }
 
   function toggleCamera() {
-    if (typeCamera == RNCamera.Constants.Type.back)
+    if (typeCamera == RNCamera.Constants.Type.back) {
       setTypeCamera(RNCamera.Constants.Type.front);
-    else setTypeCamera(RNCamera.Constants.Type.back);
+    } else {
+      setTypeCamera(RNCamera.Constants.Type.back);
+    }
   }
 
-  function catchau() {
+  function close() {
     setImage('');
-    Alert.alert('Voltar');
+    result(null);
+    onClose();
   }
 
-  async function toggleModalVisibility() {
-    if (!modalVisible) {
+  async function toggleModalGallery() {
+    if (!imageCount) {
+      Alert.alert('Nenhuma imagem capturada');
+      return;
+    }
+
+    if (!showGallery) {
       try {
         const images = await CameraRoll.getPhotos({
-          first: imagesCount,
+          first: imageCount,
           assetType: 'Photos',
         });
-        setModalVisible(!modalVisible);
-        setImagesList(images.edges);
+        setShowGallery(!showGallery);
+        setImageList(images.edges);
+        setImage(images.edges[0].node.image.uri);
       } catch (err) {
-        console.log('newImage', err);
-
         Alert.alert(JSON.stringify(err));
       }
     } else {
-      setModalVisible(!modalVisible);
+      setImage('');
+      setShowGallery(!showGallery);
+    }
+  }
+
+  function chooseImage() {
+    setShowGallery(!showGallery);
+    result(image);
+    setImage('');
+  }
+
+  function getImage(position: any) {
+    if (position > 0 && imageList) {
+      setImage(imageList[position / scrollWidth].node.image.uri);
+    } else if (position == 0 && imageList) {
+      setImage(imageList[0].node.image.uri);
     }
   }
 
@@ -100,7 +126,7 @@ const Camera: React.FC = () => {
     !!!image ? (
       <View style={styles.cameraContainer}>
         <View style={styles.cancel}>
-          <TouchableOpacity style={styles.buttonCancel} onPress={catchau}>
+          <TouchableOpacity style={styles.buttonCancel} onPress={close}>
             <Icon name="close" size={30} color="#0330fc" />
           </TouchableOpacity>
         </View>
@@ -119,10 +145,7 @@ const Camera: React.FC = () => {
           <TouchableOpacity onPress={takePicture} style={styles.button}>
             <Icon name="camera" size={25} color="#0330fc" />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={toggleModalVisibility}
-            style={styles.button}
-          >
+          <TouchableOpacity onPress={toggleModalGallery} style={styles.button}>
             <Icon name="collections" size={25} color="#0330fc" />
           </TouchableOpacity>
         </View>
@@ -137,48 +160,63 @@ const Camera: React.FC = () => {
         <View style={styles.buttonContainer}>
           <TouchableOpacity style={styles.button} onPress={saveImage}>
             <Icon name="save" size={25} color="#0330fc" />
+            <Text style={styles.buttonText}>Salvar</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={newImage}>
             <Icon name="close" size={25} color="#0330fc" />
+            <Text style={styles.buttonText}>Excluir</Text>
           </TouchableOpacity>
         </View>
       </View>
     );
 
   return (
-    <View style={styles.container}>
-      <Modal
-        animationType="slide"
-        transparent
-        visible={modalVisible}
-        onRequestClose={toggleModalVisibility}
-      >
-        <View style={styles.modalContainer}>
-          <ScrollView horizontal pagingEnabled>
-            {imagesList &&
-              imagesList.map((image) => {
-                return (
-                  <Image
-                    style={styles.modalImage}
-                    source={{ uri: image.node.image.uri }}
-                    key={image.node.image.uri}
-                    resizeMode="contain"
-                  />
-                );
-              })}
-          </ScrollView>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.button}
-              onPress={toggleModalVisibility}
+    <Modal visible={show}>
+      <View style={styles.container}>
+        <Modal
+          animationType="slide"
+          transparent
+          visible={showGallery}
+          onRequestClose={toggleModalGallery}
+        >
+          <View style={styles.modalContainer}>
+            <ScrollView
+              horizontal
+              pagingEnabled
+              onMomentumScrollEnd={(event) =>
+                getImage(event.nativeEvent.contentOffset.x)
+              }
             >
-              <Text style={styles.buttonText}>Voltar para câmera</Text>
-            </TouchableOpacity>
+              {imageList &&
+                imageList.map((image) => {
+                  return (
+                    <Image
+                      style={styles.modalImage}
+                      source={{ uri: image.node.image.uri }}
+                      key={image.node.image.uri}
+                      resizeMode="contain"
+                    />
+                  );
+                })}
+            </ScrollView>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.button}
+                onPress={toggleModalGallery}
+              >
+                <Icon name="arrow-back" size={25} color="#0330fc" />
+                <Text style={styles.buttonText}>Voltar</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={chooseImage}>
+                <Icon name="check" size={25} color="#0330fc" />
+                <Text style={styles.buttonText}>Selecionar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </Modal>
-      {toggleScreen()}
-    </View>
+        </Modal>
+        {toggleScreen()}
+      </View>
+    </Modal>
   );
 };
 
