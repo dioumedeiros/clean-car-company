@@ -7,17 +7,21 @@ import CameraRoll, {
 } from '@react-native-community/cameraroll';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import {
-  Text,
-  TouchableOpacity,
-  View,
-  Image,
-  Modal,
-  ScrollView,
-  Alert,
-} from 'react-native';
+import { Alert, Modal, ScrollView } from 'react-native';
 
-import styles from './styles';
+import {
+  Button,
+  ButtonCancel,
+  ButtonContainer,
+  CancelContainer,
+  Image,
+  ModalImage,
+  ModalContainer,
+  ViewCamera,
+  CameraContainer,
+  Container,
+  Text,
+} from './styles';
 
 interface Props {
   show: boolean;
@@ -124,62 +128,66 @@ const Camera: React.FC<Props> = ({ show, onClose, result }) => {
 
   const toggleScreen = () =>
     !!!image ? (
-      <View style={styles.cameraContainer}>
-        <View style={styles.cancel}>
-          <TouchableOpacity style={styles.buttonCancel} onPress={close}>
-            <Icon name="close" size={30} color="#0330fc" />
-          </TouchableOpacity>
-        </View>
+      <CameraContainer>
+        <CancelContainer>
+          <ButtonCancel onPress={close}>
+            <Icon name="close" size={30} color="#fff" />
+          </ButtonCancel>
+        </CancelContainer>
         <RNCamera
           ref={(ref) => setCamera(ref)}
-          style={styles.camera}
           type={typeCamera}
+          style={{
+            flex: 1,
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            opacity: 1,
+          }}
           autoFocus={RNCamera.Constants.AutoFocus.on}
           flashMode={RNCamera.Constants.FlashMode.off}
           captureAudio={false}
         />
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity onPress={toggleCamera} style={styles.button}>
-            <Icon name="cached" size={25} color="#0330fc" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={takePicture} style={styles.button}>
-            <Icon name="camera" size={25} color="#0330fc" />
-          </TouchableOpacity>
-          <TouchableOpacity onPress={toggleModalGallery} style={styles.button}>
-            <Icon name="collections" size={25} color="#0330fc" />
-          </TouchableOpacity>
-        </View>
-      </View>
+        <ButtonContainer>
+          <Button onPress={toggleCamera}>
+            <Icon name="cached" size={25} color="#fff" />
+            <Text>Inverter</Text>
+          </Button>
+          <Button onPress={takePicture}>
+            <Icon name="camera" size={25} color="#fff" />
+            <Text>Capturar</Text>
+          </Button>
+          <Button onPress={toggleModalGallery}>
+            <Icon name="collections" size={25} color="#fff" />
+            <Text>Galeria</Text>
+          </Button>
+        </ButtonContainer>
+      </CameraContainer>
     ) : (
-      <View style={styles.container}>
-        <Image
-          source={{ uri: image }}
-          style={styles.image}
-          resizeMode="contain"
-        />
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity style={styles.button} onPress={saveImage}>
-            <Icon name="save" size={25} color="#0330fc" />
-            <Text style={styles.buttonText}>Salvar</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={newImage}>
-            <Icon name="close" size={25} color="#0330fc" />
-            <Text style={styles.buttonText}>Excluir</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Container>
+        <Image source={{ uri: image }} resizeMode="contain" />
+        <ButtonContainer>
+          <Button onPress={saveImage}>
+            <Icon name="save" size={25} color="#fff" />
+            <Text>Salvar</Text>
+          </Button>
+          <Button onPress={newImage}>
+            <Icon name="close" size={25} color="#fff" />
+            <Text>Excluir</Text>
+          </Button>
+        </ButtonContainer>
+      </Container>
     );
 
   return (
     <Modal visible={show}>
-      <View style={styles.container}>
+      <Container>
         <Modal
           animationType="slide"
           transparent
           visible={showGallery}
           onRequestClose={toggleModalGallery}
         >
-          <View style={styles.modalContainer}>
+          <ModalContainer>
             <ScrollView
               horizontal
               pagingEnabled
@@ -190,8 +198,7 @@ const Camera: React.FC<Props> = ({ show, onClose, result }) => {
               {imageList &&
                 imageList.map((image) => {
                   return (
-                    <Image
-                      style={styles.modalImage}
+                    <ModalImage
                       source={{ uri: image.node.image.uri }}
                       key={image.node.image.uri}
                       resizeMode="contain"
@@ -199,23 +206,20 @@ const Camera: React.FC<Props> = ({ show, onClose, result }) => {
                   );
                 })}
             </ScrollView>
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                style={styles.button}
-                onPress={toggleModalGallery}
-              >
-                <Icon name="arrow-back" size={25} color="#0330fc" />
-                <Text style={styles.buttonText}>Voltar</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.button} onPress={chooseImage}>
-                <Icon name="check" size={25} color="#0330fc" />
-                <Text style={styles.buttonText}>Selecionar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+            <ButtonContainer>
+              <Button onPress={toggleModalGallery}>
+                <Icon name="arrow-back" size={25} color="#fff" />
+                <Text>Voltar</Text>
+              </Button>
+              <Button onPress={chooseImage}>
+                <Icon name="check" size={25} color="#fff" />
+                <Text>Selecionar</Text>
+              </Button>
+            </ButtonContainer>
+          </ModalContainer>
         </Modal>
         {toggleScreen()}
-      </View>
+      </Container>
     </Modal>
   );
 };
