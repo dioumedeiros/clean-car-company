@@ -7,19 +7,19 @@ import CameraRoll, {
 } from '@react-native-community/cameraroll';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
-import { Alert, Modal, ScrollView } from 'react-native';
+import { Alert, Modal } from 'react-native';
 
 import {
   Button,
   ButtonCancel,
   ButtonContainer,
+  CameraContainer,
   CancelContainer,
+  Container,
   Image,
   ModalImage,
   ModalContainer,
-  ViewCamera,
-  CameraContainer,
-  Container,
+  ScrollView,
   Text,
 } from './styles';
 
@@ -119,6 +119,10 @@ const Camera: React.FC<Props> = ({ show, onClose, result }) => {
   }
 
   function getImage(position: any) {
+    console.log('scrollWidth', scrollWidth);
+    console.log('position', position);
+    console.log('imageList', imageList);
+
     if (position > 0 && imageList) {
       setImage(imageList[position / scrollWidth].node.image.uri);
     } else if (position == 0 && imageList) {
@@ -166,13 +170,13 @@ const Camera: React.FC<Props> = ({ show, onClose, result }) => {
       <Container>
         <Image source={{ uri: image }} resizeMode="contain" />
         <ButtonContainer>
-          <Button onPress={saveImage}>
-            <Icon name="save" size={25} color="#fff" />
-            <Text>Salvar</Text>
-          </Button>
           <Button onPress={newImage}>
             <Icon name="close" size={25} color="#fff" />
             <Text>Excluir</Text>
+          </Button>
+          <Button onPress={saveImage}>
+            <Icon name="save" size={25} color="#fff" />
+            <Text>Salvar</Text>
           </Button>
         </ButtonContainer>
       </Container>

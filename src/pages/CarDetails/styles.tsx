@@ -2,16 +2,18 @@ import { Dimensions } from 'react-native';
 
 import styled from 'styled-components/native';
 
+const blueButton = '#0036a3';
+
 export const Container = styled.View`
   justify-content: center;
-  margin: 15px 0 0 25px;
+  margin: 0 0 0 25px;
 `;
 
 export const Scroll = styled.ScrollView`
   height: 100%;
 `;
 
-export const Feed = styled.View`
+export const Stage = styled.View`
   margin-top: 10px;
 `;
 
@@ -29,9 +31,7 @@ export const Title = styled.Text`
   margin-bottom: 5px;
 `;
 
-export const Service = styled.Text``;
-
-export const Stage = styled.View`
+export const GridRow = styled.View`
   flex-direction: row;
 `;
 
@@ -60,23 +60,15 @@ export const TextButton = styled.Text`
   font-weight: bold;
 `;
 
-export const CameraButton = styled.TouchableOpacity`
-  margin-bottom: 5px;
+export const Button = styled.TouchableOpacity`
   padding: 10px;
-  background-color: #0055ff;
+  background-color: ${blueButton};
   border-radius: 6px;
   border-width: 1px;
   border-color: #fff;
-  width: 110px;
-  flex-direction: row;
-`;
-
-export const ProblemButton = styled.TouchableOpacity`
-  padding: 10px;
-  background-color: #0055ff;
-  border-radius: 6px;
-  border-width: 1px;
-  border-color: #fff;
-  width: 200px;
+  width: ${(props) => (props.width ? props.width : 150)}px;
+  height: 40px;
   margin-bottom: 10px;
+  margin-right: 2px;
+  flex-direction: row;
 `;

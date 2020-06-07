@@ -4,17 +4,15 @@ import Icon from 'react-native-vector-icons/AntDesign';
 
 import Camera from '../../components/Camera';
 import {
-  CameraButton,
+  Button,
   Container,
-  Feed,
+  Stage,
   Phase,
-  ProblemButton,
-  Service,
+  Scroll,
+  GridRow,
   TextButton,
   Title,
   TouchImage,
-  Scroll,
-  Stage,
   MapButton,
   ModalImage,
 } from './styles';
@@ -32,11 +30,11 @@ const car = {
     },
     {
       type: 'Polimento dos faróis',
-      price: 12.12,
+      price: 12.1,
     },
     {
       type: 'Cera',
-      price: 50.2,
+      price: 60.22,
     },
   ],
 };
@@ -45,8 +43,17 @@ const CarDetails: React.FC = () => {
   const [sumServices, setSumServices] = useState(0);
   const [showCameraReceived, setShowCameraReceived] = useState(false);
   const [showCameraFinished, setShowCameraFinished] = useState(false);
+  const [carDelivered, setCarDelivered] = useState(false);
   const [imageCarReceived, setImageCarReceived] = useState();
   const [imageCarFinished, setImageCarFinished] = useState();
+
+  const icon = {
+    size: 25,
+    colorAccepted: '#08A4BD',
+    colorReceived: imageCarReceived ? '#08A4BD' : '#d3d3d3',
+    colorFinished: imageCarFinished ? '#08A4BD' : '#d3d3d3',
+    colorDelivered: carDelivered ? '#08A4BD' : '#d3d3d3',
+  };
 
   useEffect(() => {
     getSumServices();
@@ -71,10 +78,15 @@ const CarDetails: React.FC = () => {
   }
 
   function getSumServices() {
-    let sum = 0;
-    car.services.map((service) => {
-      sum += service.price;
-    });
+    // let sum = 0;
+    // car.services.map((service) => {
+    //   sum += service.price;
+    // });
+
+    const sum = car.services.reduce(
+      (total, service) => total + service.price,
+      0,
+    );
 
     setSumServices(sum);
   }
@@ -87,12 +99,20 @@ const CarDetails: React.FC = () => {
     Alert.alert('Abrir no mapa');
   }
 
+  function toggleDelivered() {
+    setCarDelivered(!carDelivered);
+  }
+
   return (
     <Container>
       <Scroll>
-        <Feed>
-          <Stage>
-            <Icon name="checkcircle" size={25} color="#0080ff" />
+        <Stage>
+          <GridRow>
+            <Icon
+              name="checkcircle"
+              size={icon.size}
+              color={icon.colorAccepted}
+            />
             <Phase>
               <Title>Aceitou</Title>
               <Text>Lavação Aceita</Text>
@@ -104,12 +124,16 @@ const CarDetails: React.FC = () => {
             <MapButton onPress={() => openMap()}>
               <TextButton>Abrir no mapa</TextButton>
             </MapButton>
-          </Stage>
-        </Feed>
+          </GridRow>
+        </Stage>
 
-        <Feed>
-          <Stage>
-            <Icon name="checkcircle" size={25} color="#d3d3d3" />
+        <Stage>
+          <GridRow>
+            <Icon
+              name="checkcircle"
+              size={icon.size}
+              color={icon.colorReceived}
+            />
             <Phase>
               <Title>Carro recebido</Title>
               {imageCarReceived && (
@@ -122,14 +146,19 @@ const CarDetails: React.FC = () => {
                 </TouchImage>
               )}
               {!imageCarReceived ? (
-                <CameraButton onPress={() => toggleCamera(false)}>
+                <Button width="110" onPress={() => toggleCamera(false)}>
                   <Icon name="camera" size={15} color="#fff" />
                   <TextButton>Receber</TextButton>
-                </CameraButton>
+                </Button>
               ) : (
-                <ProblemButton onPress={() => reportProblem()}>
-                  <TextButton>Relatar um problema</TextButton>
-                </ProblemButton>
+                <GridRow>
+                  <Button width="39" onPress={() => toggleCamera(false)}>
+                    <Icon name="camera" size={15} color="#fff" />
+                  </Button>
+                  <Button width="159" onPress={() => reportProblem()}>
+                    <TextButton>Relatar problema</TextButton>
+                  </Button>
+                </GridRow>
               )}
               <Camera
                 show={showCameraReceived}
@@ -140,16 +169,25 @@ const CarDetails: React.FC = () => {
               <FlatList
                 data={car.services}
                 keyExtractor={(item) => item.type}
-                renderItem={({ item }) => <Service>- {item.type}</Service>}
+                renderItem={({ item }) => <Text>- {item.type}</Text>}
                 scrollEnabled={false}
               />
-              <Text>R$ {sumServices}</Text>
+              <Text>
+                {Intl.NumberFormat('pt-BR', {
+                  style: 'currency',
+                  currency: 'BRL',
+                }).format(sumServices)}
+              </Text>
             </Phase>
-          </Stage>
-        </Feed>
-        <Feed>
-          <Stage>
-            <Icon name="checkcircle" size={25} color="#d3d3d3" />
+          </GridRow>
+        </Stage>
+        <Stage>
+          <GridRow>
+            <Icon
+              name="checkcircle"
+              size={icon.size}
+              color={icon.colorFinished}
+            />
             <Phase>
               <Title>Lavação Finalizada</Title>
               {imageCarFinished && (
@@ -162,14 +200,19 @@ const CarDetails: React.FC = () => {
                 </TouchImage>
               )}
               {!imageCarFinished ? (
-                <CameraButton onPress={() => toggleCamera(true)}>
+                <Button width="110" onPress={() => toggleCamera(true)}>
                   <Icon name="camera" size={15} color="#fff" />
                   <TextButton>Finalizar</TextButton>
-                </CameraButton>
+                </Button>
               ) : (
-                <ProblemButton onPress={() => reportProblem()}>
-                  <TextButton>Relatar um problema</TextButton>
-                </ProblemButton>
+                <GridRow>
+                  <Button width="39" onPress={() => toggleCamera(true)}>
+                    <Icon name="camera" size={15} color="#fff" />
+                  </Button>
+                  <Button width="159" onPress={() => reportProblem()}>
+                    <TextButton>Relatar problema</TextButton>
+                  </Button>
+                </GridRow>
               )}
               <Camera
                 show={showCameraFinished}
@@ -177,16 +220,23 @@ const CarDetails: React.FC = () => {
                 result={(value) => chooseImageFinished(value)}
               />
             </Phase>
-          </Stage>
-        </Feed>
-        <Feed>
-          <Stage>
-            <Icon name="checkcircle" size={25} color="#d3d3d3" />
+          </GridRow>
+        </Stage>
+        <Stage>
+          <GridRow>
+            <Icon
+              name="checkcircle"
+              size={icon.size}
+              color={icon.colorDelivered}
+            />
             <Phase>
               <Title>Automóvel entregue</Title>
+              <Button width="110" onPress={() => toggleDelivered()}>
+                <TextButton> Entregar </TextButton>
+              </Button>
             </Phase>
-          </Stage>
-        </Feed>
+          </GridRow>
+        </Stage>
       </Scroll>
     </Container>
   );
