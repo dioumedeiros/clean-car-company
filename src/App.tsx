@@ -1,4 +1,6 @@
 import 'react-native-gesture-handler';
+import 'intl';
+import 'intl/locale-data/jsonp/pt-BR';
 
 import React, { Component } from 'react';
 import { StatusBar, View } from 'react-native';
