@@ -22,7 +22,7 @@ const AuthRoutes: React.FC = () => (
   //   <Auth.Screen name="Detalhes" component={CarDetails} />
   //   <Auth.Screen name="Atendimentos" component={Attendance} />
   // </Auth.Navigator>
-  <Drawer.Navigator initialRouteName="Detalhes">
+  <Drawer.Navigator initialRouteName="Atendimentos">
     <Drawer.Screen name="Detalhes" component={CarDetails} />
     <Drawer.Screen name="Atendimentos" component={Attendance} />
   </Drawer.Navigator>

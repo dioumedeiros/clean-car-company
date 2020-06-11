@@ -4,7 +4,7 @@ import 'intl/locale-data/jsonp/pt-BR';
 
 import React, { Component } from 'react';
 import { StatusBar, View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import OneSignal from 'react-native-onesignal';
 import Routes from './routes';
 
@@ -32,6 +32,8 @@ class App extends Component {
 
   onOpened = (notification) => {
     console.log('notification ', notification);
+    const navigation = useNavigation();
+    navigation.navigate('Atendimentos');
   };
 
   onIds = (id) => {
