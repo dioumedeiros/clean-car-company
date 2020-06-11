@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Dimensions } from 'react-native';
+import { Dimensions, Platform, PermissionsAndroid } from 'react-native';
 
 import { RNCamera } from 'react-native-camera';
 import CameraRoll, {
@@ -56,14 +56,29 @@ const Camera: React.FC<Props> = ({ show, onClose, result }) => {
     }
   }
 
+  const checkAndroidPermission = async () => {
+    try {
+      const permission = PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE;
+      await PermissionsAndroid.request(permission);
+      Promise.resolve();
+    } catch (error) {
+      Promise.reject(error);
+    }
+  };
+
   async function saveImage() {
     try {
+      if (Platform.OS === 'android') {
+        await checkAndroidPermission();
+      }
+
       await CameraRoll.saveToCameraRoll(image);
 
       setImage('');
       setImageCount(imageCount + 1);
     } catch (err) {
       Alert.alert(JSON.stringify(err));
+      console.log(JSON.stringify(err));
     }
   }
 
