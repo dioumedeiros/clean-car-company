@@ -2,6 +2,7 @@ import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 
 import CarDetails from '../pages/CarDetails';
+import Attendance from '../pages/Attendance';
 
 const Auth = createStackNavigator();
 
@@ -9,6 +10,7 @@ const AuthRoutes: React.FC = () => (
   <Auth.Navigator
     screenOptions={{
       headerTintColor: '#fff',
+      headerTitleAlign: 'center',
       headerStyle: {
         backgroundColor: '#08A4BD',
       },
@@ -16,6 +18,7 @@ const AuthRoutes: React.FC = () => (
     }}
   >
     <Auth.Screen name="Detalhes" component={CarDetails} />
+    <Auth.Screen name="Atendimentos" component={Attendance} />
   </Auth.Navigator>
 );
 
